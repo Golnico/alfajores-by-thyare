@@ -724,6 +724,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <div class="header">
@@ -1154,7 +1155,7 @@
 
             // IMPORTANT: Replace with your friend's WhatsApp number
             // Format: 5491112345678 (country code + area code + number, no +, no spaces)
-            const whatsappNumber = '5491112345678';
+            const whatsappNumber = '56998684903';
 
             const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
@@ -1175,18 +1176,31 @@
             showToast('¡Pedido enviado! 📱', 'success');
         }
 
-        // Send to Google Sheets (placeholder - will be configured)
+        // Send to Google Sheets
         function sendToGoogleSheets(data) {
             console.log('Sending to Google Sheets:', data);
 
-            const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
 
-            // Uncomment when configured:
-            // fetch(scriptURL, {
-            //     method: 'POST',
-            //     body: JSON.stringify(data),
-            //     headers: { 'Content-Type': 'application/json' }
-            // }).catch(err => console.log('Sheet update failed:', err));
+            // Use URL-encoded form data (works better with Google Apps Script)
+            const formData = new URLSearchParams();
+            formData.append('name', data.name || '');
+            formData.append('phone', data.phone || '');
+            formData.append('notes', data.notes || '');
+            formData.append('total', data.total || 0);
+            formData.append('items', JSON.stringify(data.items || []));
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                console.log('✅ Google Sheets response:', result);
+            })
+            .catch(err => {
+                console.error('❌ Error:', err);
+            });
         }
 
         // Show toast
