@@ -817,8 +817,8 @@
     </div>
 
     <script>
-        // Product data (will be updated from Google Sheets)
-        let products = [
+        // Product data
+        const products = [
             { id: 'nuez', name: 'Nuez', emoji: '🌰', price: 1000, stock: 15 },
             { id: 'mani', name: 'Maní', emoji: '🥜', price: 1000, stock: 12 },
             { id: 'frambuesa', name: 'Frambuesa', emoji: '🍓', price: 1000, stock: 8 },
@@ -827,7 +827,7 @@
             { id: 'nutella', name: 'Nutella', emoji: '🍫', price: 1000, stock: 18 },
         ];
 
-        let specialProduct = {
+        const specialProduct = {
             id: 'tradicional',
             name: 'Tradicional',
             emoji: '🍪',
@@ -836,35 +836,6 @@
             promo: '2 x $1,000',
             isSpecial: true
         };
-
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxPY8TnVXzOH3jBUBDDUyTp-_TgRjxtqMe8vieNPXkFCbFY79bDkLaob-5kw85oapyE/exec';
-
-        // Load stock from Google Sheets on page load
-        async function loadStockFromSheets() {
-            try {
-                const response = await fetch(scriptURL + '?action=getStock');
-                const stockData = await response.json();
-
-                if (stockData.status === 'ok' && stockData.stock) {
-                    // Update products stock
-                    stockData.stock.forEach(stockItem => {
-                        const product = products.find(p => p.id === stockItem.id);
-                        if (product) {
-                            product.stock = stockItem.disponible;
-                        }
-                        if (specialProduct.id === stockItem.id) {
-                            specialProduct.stock = stockItem.disponible;
-                        }
-                    });
-
-                    console.log('✅ Stock loaded from Google Sheets');
-                    renderProducts();
-                }
-            } catch (err) {
-                console.log('⚠️ Could not load stock from Sheets, using defaults:', err);
-                // Keep default stock values
-            }
-        }
 
         // Cart state
         let cart = {};
@@ -1188,21 +1159,34 @@
 
             const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-            // Open WhatsApp
-            window.open(url, '_blank');
-
-            // Also send to Google Sheets (optional, will be configured later)
+            // Send to Google Sheets FIRST, then open WhatsApp
+            // (Some browsers block fetch after window.open)
             sendToGoogleSheets({
                 name, phone, notes,
                 items: Object.values(cart),
                 total
-            });
+            })
+            .then(() => {
+                console.log('Sheets updated, now opening WhatsApp');
+                // Open WhatsApp after Sheets is updated
+                window.open(url, '_blank');
 
-            // Clear cart
-            cart = {};
-            updateCartBar();
-            closeCart();
-            showToast('¡Pedido enviado! 📱', 'success');
+                // Clear cart
+                cart = {};
+                updateCartBar();
+                closeCart();
+                showToast('¡Pedido enviado! 📱', 'success');
+            })
+            .catch(err => {
+                console.error('Failed to update Sheets:', err);
+                // Still open WhatsApp even if Sheets fails
+                window.open(url, '_blank');
+
+                cart = {};
+                updateCartBar();
+                closeCart();
+                showToast('¡Pedido enviado! 📱', 'success');
+            });
         }
 
         // Send to Google Sheets (placeholder - will be configured)
@@ -1235,9 +1219,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadStockFromSheets().then(() => {
-                renderProducts();
-            });
+            renderProducts();
         });
     </script>
 </body>
