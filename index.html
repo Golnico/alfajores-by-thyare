@@ -250,16 +250,19 @@
         }
 
         .products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .product-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
             background: var(--card);
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid rgba(46, 32, 22, 0.1);
-            overflow: hidden;
+            padding: 14px;
             box-shadow: var(--shadow-card);
             transition: transform 0.15s;
             position: relative;
@@ -279,47 +282,71 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-10deg);
-            background: transparent;
+            background: var(--card);
             border: 2px solid var(--danger);
             color: var(--danger);
-            padding: 6px 16px;
+            padding: 5px 14px;
             font-family: 'Space Mono', monospace;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             border-radius: 4px;
             z-index: 10;
             letter-spacing: 2px;
         }
 
         .product-image {
-            width: 78px;
-            height: 78px;
+            width: 84px;
+            height: 84px;
+            flex-shrink: 0;
             border-radius: 50%;
             border: 2px dashed var(--primary);
             background: var(--bg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.1rem;
-            position: relative;
-            margin: 18px auto 4px;
+            font-size: 2rem;
             transform: rotate(-4deg);
+            overflow: hidden;
         }
 
-        .product-card:nth-of-type(even) .product-image {
+        .product-card:nth-of-type(even) .product-image:not(.has-photo) {
             transform: rotate(4deg);
         }
 
+        .product-image.has-photo {
+            border-radius: 10px;
+            border: 2px solid var(--paper-deep);
+            transform: none;
+        }
+
+        .product-image.has-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: sepia(0.12) saturate(1.15) contrast(1.02);
+        }
+
         .product-info {
-            padding: 10px 12px 16px;
-            text-align: center;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0;
+            text-align: left;
+        }
+
+        .product-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
         }
 
         .product-name {
             font-family: 'Fraunces', serif;
             font-weight: 600;
             font-size: 0.98rem;
-            margin-bottom: 4px;
             color: var(--text);
         }
 
@@ -327,17 +354,18 @@
             font-family: 'Space Mono', monospace;
             color: var(--vino);
             font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+            font-size: 1.05rem;
             letter-spacing: -0.5px;
+            white-space: nowrap;
         }
 
         .product-price .promo {
-            font-size: 0.68rem;
+            font-size: 0.62rem;
             color: var(--primary);
             font-weight: 500;
             display: block;
-            margin-top: 2px;
+            text-align: right;
+            margin-top: 1px;
             opacity: 0.85;
             letter-spacing: 0;
         }
@@ -350,9 +378,9 @@
             font-size: 0.64rem;
             padding: 2px 9px;
             border-radius: 3px;
-            margin-bottom: 10px;
             font-weight: 400;
             border: 1px dashed currentColor;
+            align-self: flex-start;
         }
 
         .stock-badge.ok {
@@ -370,22 +398,30 @@
             color: var(--danger);
         }
 
+        .product-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 2px;
+        }
+
         /* Quantity selector */
         .quantity-selector {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            justify-content: flex-start;
+            gap: 8px;
         }
 
         .qty-btn {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border: none;
             border-radius: 50%;
             background: var(--accent);
             color: var(--bg);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -414,16 +450,17 @@
         }
 
         .add-btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px;
+            width: auto;
+            flex-shrink: 0;
+            margin-top: 0;
+            padding: 8px 16px;
             border: none;
             border-radius: 4px;
             background: var(--vino);
             color: var(--card);
             font-family: 'Space Mono', monospace;
             font-weight: 700;
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.15s;
@@ -446,24 +483,15 @@
 
         /* Special card for Tradicional */
         .product-card.special {
-            grid-column: span 2;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background: var(--card);
             border: 2px dashed var(--vino);
         }
 
         .product-card.special .product-image {
-            width: 84px;
-            height: 84px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin: 0;
-            background: var(--bg);
-            border: 2px dashed var(--vino);
-            transform: rotate(-6deg);
+            border-color: var(--vino);
+        }
+
+        .product-card.special .product-image.has-photo {
+            border: 2px solid var(--vino);
         }
 
         .product-card.special .product-info {
@@ -903,14 +931,6 @@
 
         /* Responsive */
         @media (min-width: 768px) {
-            .products-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .product-card.special {
-                grid-column: span 3;
-            }
-
             .modal-content {
                 border-radius: 10px;
                 margin-bottom: 20px;
@@ -1039,6 +1059,7 @@
             id: 'tradicional',
             name: 'Tradicional',
             emoji: '🍪',
+            image: 'images/tradicional.png',
             price: 1000,
             stock: 25,
             promo: '2 x $1,000',
@@ -1092,24 +1113,32 @@
 
             const stockClass = product.stock <= 0 ? 'out' : product.stock <= 5 ? 'low' : 'ok';
             const stockText = product.stock <= 0 ? 'Sin stock' : product.stock <= 5 ? `¡Solo ${product.stock}!` : `${product.stock} disponibles`;
+            const imageContent = product.image
+                ? `<img src="${product.image}" alt="${product.name}">`
+                : product.emoji;
+            const imageClass = product.image ? 'product-image has-photo' : 'product-image';
 
             card.innerHTML = `
-                <div class="product-image">${product.emoji}</div>
+                <div class="${imageClass}">${imageContent}</div>
                 <div class="product-info">
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">$${product.price.toLocaleString()}</div>
+                    <div class="product-top">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">$${product.price.toLocaleString()}</div>
+                    </div>
                     <div class="stock-badge ${stockClass}">
                         <i class="fas fa-circle" style="font-size: 5px;"></i>
                         ${stockText}
                     </div>
-                    <div class="quantity-selector">
-                        <button class="qty-btn" onclick="updateQty('${product.id}', -1)" ${product.stock <= 0 ? 'disabled' : ''}>-</button>
-                        <span class="qty-value" id="qty-${product.id}">0</span>
-                        <button class="qty-btn" onclick="updateQty('${product.id}', 1)" ${product.stock <= 0 ? 'disabled' : ''}>+</button>
+                    <div class="product-controls">
+                        <div class="quantity-selector">
+                            <button class="qty-btn" onclick="updateQty('${product.id}', -1)" ${product.stock <= 0 ? 'disabled' : ''}>-</button>
+                            <span class="qty-value" id="qty-${product.id}">0</span>
+                            <button class="qty-btn" onclick="updateQty('${product.id}', 1)" ${product.stock <= 0 ? 'disabled' : ''}>+</button>
+                        </div>
+                        <button class="add-btn" onclick="addToCart('${product.id}')" ${product.stock <= 0 ? 'disabled' : ''}>
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
                     </div>
-                    <button class="add-btn" onclick="addToCart('${product.id}')" ${product.stock <= 0 ? 'disabled' : ''}>
-                        <i class="fas fa-plus"></i> Agregar
-                    </button>
                 </div>
             `;
 
@@ -1123,28 +1152,36 @@
 
             const stockClass = product.stock <= 0 ? 'out' : product.stock <= 5 ? 'low' : 'ok';
             const stockText = product.stock <= 0 ? 'Sin stock' : product.stock <= 5 ? `¡Solo ${product.stock}!` : `${product.stock} disponibles`;
+            const imageContent = product.image
+                ? `<img src="${product.image}" alt="${product.name}">`
+                : product.emoji;
+            const imageClass = product.image ? 'product-image has-photo' : 'product-image';
 
             card.innerHTML = `
-                <div class="product-image">${product.emoji}</div>
+                <div class="${imageClass}">${imageContent}</div>
                 <div class="product-info">
                     <span class="special-badge">PROMO</span>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">
-                        $${product.price.toLocaleString()}
-                        <span class="promo">${product.promo}</span>
+                    <div class="product-top">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">
+                            $${product.price.toLocaleString()}
+                            <span class="promo">${product.promo}</span>
+                        </div>
                     </div>
                     <div class="stock-badge ${stockClass}">
                         <i class="fas fa-circle" style="font-size: 5px;"></i>
                         ${stockText}
                     </div>
-                    <div class="quantity-selector">
-                        <button class="qty-btn" onclick="updateQty('${product.id}', -1)" ${product.stock <= 0 ? 'disabled' : ''}>-</button>
-                        <span class="qty-value" id="qty-${product.id}">0</span>
-                        <button class="qty-btn" onclick="updateQty('${product.id}', 1)" ${product.stock <= 0 ? 'disabled' : ''}>+</button>
+                    <div class="product-controls">
+                        <div class="quantity-selector">
+                            <button class="qty-btn" onclick="updateQty('${product.id}', -1)" ${product.stock <= 0 ? 'disabled' : ''}>-</button>
+                            <span class="qty-value" id="qty-${product.id}">0</span>
+                            <button class="qty-btn" onclick="updateQty('${product.id}', 1)" ${product.stock <= 0 ? 'disabled' : ''}>+</button>
+                        </div>
+                        <button class="add-btn" onclick="addToCart('${product.id}')" ${product.stock <= 0 ? 'disabled' : ''}>
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
                     </div>
-                    <button class="add-btn" onclick="addToCart('${product.id}')" ${product.stock <= 0 ? 'disabled' : ''}>
-                        <i class="fas fa-plus"></i> Agregar
-                    </button>
                 </div>
             `;
 
