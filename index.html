@@ -180,6 +180,19 @@
             background: var(--vino-dark);
         }
 
+        .enter-btn.outline {
+            margin-top: 12px;
+            background: transparent;
+            color: var(--vino);
+            border: 2px dashed var(--vino);
+            box-shadow: none;
+        }
+
+        .enter-btn.outline:active {
+            background: rgba(122, 35, 51, 0.08);
+            box-shadow: none;
+        }
+
         /* Header */
         .header {
             background: var(--accent);
@@ -947,7 +960,6 @@
         }
     </style>
 <base target="_blank">
-<base target="_blank">
 </head>
 <body>
     <!-- Splash / Vidriera -->
@@ -960,6 +972,9 @@
             Preparando el mostrador<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
         </div>
         <button class="enter-btn" onclick="enterStore()">Ver sabores</button>
+        <button class="enter-btn outline" onclick="showOrderLookup()">
+            <i class="fas fa-search"></i> Ver mis pedidos
+        </button>
     </div>
 
     <div id="app">
@@ -1040,6 +1055,44 @@
                         <i class="fab fa-whatsapp"></i>
                         Enviar pedido por WhatsApp
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Lookup Modal -->
+    <div class="modal-overlay" id="lookupModal" onclick="closeLookup(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2><i class="fas fa-search"></i> Buscar mis pedidos</h2>
+                <button class="close-btn" onclick="closeLookup()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="lookupForm">
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5;">
+                        Ingresá el número de teléfono con el que hiciste tu pedido.
+                    </p>
+                    <div class="form-group">
+                        <label>Teléfono *</label>
+                        <input type="tel" id="lookupPhone" placeholder="Ej: 11 6789-0123">
+                    </div>
+                    <button class="whatsapp-btn" onclick="searchOrders()" id="searchBtn" 
+                            style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); margin-top: 12px;">
+                        <i class="fas fa-search"></i> Buscar pedidos
+                    </button>
+                </div>
+                
+                <div id="lookupResults" style="display: none; margin-top: 20px;">
+                    <h3 style="font-family: 'Fraunces', serif; font-style: italic; font-size: 1rem; color: var(--vino); margin-bottom: 12px; border-bottom: 2px dashed var(--paper-deep); padding-bottom: 8px;">
+                        <i class="fas fa-history"></i> Tus pedidos
+                    </h3>
+                    <div id="ordersList"></div>
+                </div>
+                
+                <div id="lookupEmpty" style="display: none; text-align: center; padding: 30px 20px; color: var(--text-muted);">
+                    <i class="fas fa-inbox" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5;"></i>
+                    <p style="font-family: 'Fraunces', serif; font-style: italic;">No encontramos pedidos</p>
+                    <p style="font-size: 0.8rem; margin-top: 6px;">Verificá que el número sea correcto.</p>
                 </div>
             </div>
         </div>
@@ -1480,6 +1533,101 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 2500);
+        }
+
+        // ========== ORDER LOOKUP ==========
+
+        function showOrderLookup() {
+            document.getElementById('lookupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('lookupPhone').value = '';
+            document.getElementById('lookupForm').style.display = 'block';
+            document.getElementById('lookupResults').style.display = 'none';
+            document.getElementById('lookupEmpty').style.display = 'none';
+        }
+
+        function closeLookup(event) {
+            if (!event || event.target === document.getElementById('lookupModal')) {
+                document.getElementById('lookupModal').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        async function searchOrders() {
+            const phone = document.getElementById('lookupPhone').value.trim();
+            
+            if (!phone) {
+                showToast('Ingresá un número de teléfono', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Buscando...';
+            
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getOrders&phone=${encodeURIComponent(phone)}`);
+                const data = await res.json();
+                
+                if (data.status === 'ok' && data.orders && data.orders.length > 0) {
+                    renderOrders(data.orders);
+                    document.getElementById('lookupResults').style.display = 'block';
+                    document.getElementById('lookupEmpty').style.display = 'none';
+                } else {
+                    document.getElementById('lookupResults').style.display = 'none';
+                    document.getElementById('lookupEmpty').style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error buscando pedidos:', err);
+                showToast('Error al buscar. Intentá de nuevo.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Buscar pedidos';
+            }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersList');
+            let html = '';
+            
+            orders.forEach(order => {
+                const estado = order.estado || 'Pendiente';
+                let estadoColor = 'var(--warning)';
+                let estadoIcon = 'fa-clock';
+                
+                if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) {
+                    estadoColor = 'var(--success)';
+                    estadoIcon = 'fa-check-circle';
+                } else if (estado.toLowerCase().includes('cancelado')) {
+                    estadoColor = 'var(--danger)';
+                    estadoIcon = 'fa-times-circle';
+                }
+                
+                html += `
+                    <div style="background: var(--bg); border-radius: 8px; padding: 14px; margin-bottom: 12px; border: 1px dashed var(--paper-deep);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text-muted);">
+                                <i class="fas fa-calendar-alt" style="margin-right: 4px;"></i>${order.fecha}
+                            </span>
+                            <span style="font-family: 'Space Mono', monospace; font-size: 0.68rem; padding: 3px 10px; border-radius: 3px; background: ${estadoColor}15; color: ${estadoColor}; border: 1px dashed ${estadoColor};">
+                                <i class="fas ${estadoIcon}" style="margin-right: 4px;"></i>${estado}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text); margin-bottom: 8px; line-height: 1.5;">
+                            ${order.items}
+                        </div>
+                        ${order.notas ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic;"><i class="fas fa-comment" style="margin-right: 4px;"></i>${order.notas}</div>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--paper-deep); padding-top: 8px;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Total</span>
+                            <span style="font-family: 'Space Mono', monospace; font-weight: 700; color: var(--vino); font-size: 1rem;">
+                                $${order.total.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
         }
 
         // Initialize
