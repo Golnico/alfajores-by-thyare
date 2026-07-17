@@ -1039,13 +1039,13 @@
                         <input type="text" id="customerName" placeholder="Ej: María González">
                     </div>
                     <div class="form-group">
-                    <label>Teléfono *</label>
-                    <input type="tel" id="customerPhone" placeholder="Ej: 9 6839 3459">
-                    <div class="form-hint">
-                    <i class="fas fa-info-circle" style="font-size: 0.65rem;"></i>
-                    Formato chileno: 9 seguido de 8 dígitos. Coordinaremos entrega por WhatsApp
-                </div>
-                </div>
+                        <label>Teléfono *</label>
+                        <input type="tel" id="customerPhone" placeholder="Ej: 9 6839 3459">
+                        <div class="form-hint">
+                            <i class="fas fa-info-circle" style="font-size: 0.65rem;"></i>
+                            Formato chileno: 9 seguido de 8 dígitos. Coordinaremos entrega por WhatsApp
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>Notas adicionales</label>
                         <textarea id="customerNotes" placeholder="Ej: Para regalo, sin azúcar..."></textarea>
@@ -1080,8 +1080,8 @@
                         Ingresá el número de teléfono con el que hiciste tu pedido.
                     </p>
                     <div class="form-group">
-                    <label>Teléfono *</label>
-                    <input type="tel" id="lookupPhone" placeholder="Ej: 9 6839 3459">
+                        <label>Teléfono *</label>
+                        <input type="tel" id="lookupPhone" placeholder="Ej: 9 6839 3459">
                     </div>
                     <button class="whatsapp-btn" onclick="searchOrders()" id="searchBtn" 
                             style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); margin-top: 12px;">
@@ -1131,6 +1131,16 @@
         let cart = {};
 
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGXND_bDpUajwtuKwVIsqSpbtcTmvxmzuMzQC8UXCjY4CalmyAriI0441ug2lWyApP/exec';
+
+        // ========== HELPER: Normalizar teléfono en frontend ==========
+        function normalizePhoneFrontend(phone) {
+            if (!phone) return '';
+            let digits = String(phone).replace(/\D/g, '');
+            if (digits.startsWith('56') && digits.length > 9) {
+                digits = digits.substring(2);
+            }
+            return digits;
+        }
 
         // Load real stock from Google Sheets (via doGet?action=getStock) and merge it
         // into the local product/specialProduct objects before rendering.
@@ -1561,13 +1571,24 @@
                 return;
             }
             
+            // NORMALIZAR en el frontend antes de enviar
+            const normalizedPhone = normalizePhoneFrontend(phone);
+            console.log('=== FRONTEND DEBUG ===');
+            console.log('Raw input:', phone);
+            console.log('Normalized:', normalizedPhone);
+            
             const btn = document.getElementById('searchBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Buscando...';
             
+            const url = `${SCRIPT_URL}?action=getOrders&phone=${encodeURIComponent(normalizedPhone)}`;
+            console.log('Fetch URL:', url);
+            
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=getOrders&phone=${encodeURIComponent(phone)}`);
+                const res = await fetch(url);
+                console.log('Response status:', res.status);
                 const data = await res.json();
+                console.log('Response data:', data);
                 
                 if (data.status === 'ok' && data.orders && data.orders.length > 0) {
                     renderOrders(data.orders);
