@@ -1060,7 +1060,14 @@
         </div>
     </div>
 
-    <!-- Order Lookup Modal -->
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Producto agregado</span>
+    </div>
+    </div> <!-- /#app -->
+
+    <!-- Order Lookup Modal - FUERA del #app para que funcione desde el splash -->
     <div class="modal-overlay" id="lookupModal" onclick="closeLookup(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -1097,13 +1104,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">Producto agregado</span>
-    </div>
-    </div> <!-- /#app -->
 
     <script>
         // Product data
