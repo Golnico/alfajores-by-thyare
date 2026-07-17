@@ -1040,7 +1040,7 @@
                     </div>
                     <div class="form-group">
                         <label>Teléfono *</label>
-                        <input type="tel" id="customerPhone" placeholder="Ej: 9 XXXX XXXX">
+                        <input type="tel" id="customerPhone" placeholder="Ej: 9 1234 1234">
                         <div class="form-hint">
                             <i class="fas fa-info-circle" style="font-size: 0.65rem;"></i>
                             Formato chileno: 9 seguido de 8 dígitos. Coordinaremos entrega por WhatsApp
@@ -1081,7 +1081,7 @@
                     </p>
                     <div class="form-group">
                         <label>Teléfono *</label>
-                        <input type="tel" id="lookupPhone" placeholder="Ej: 9 xxxx xxxx">
+                        <input type="tel" id="lookupPhone" placeholder="Ej: 9 1234 1234">
                     </div>
                     <button class="whatsapp-btn" onclick="searchOrders()" id="searchBtn" 
                             style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); margin-top: 12px;">
@@ -1650,7 +1650,7 @@
                 let estadoColor = 'var(--warning)';
                 let estadoIcon = 'fa-clock';
                 
-                if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) {
+                if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado') || estado.toLowerCase().includes('pagado')) {
                     estadoColor = 'var(--success)';
                     estadoIcon = 'fa-check-circle';
                 } else if (estado.toLowerCase().includes('cancelado')) {
