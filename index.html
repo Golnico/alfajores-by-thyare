@@ -839,6 +839,27 @@
         // Cart state
         let cart = {};
 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
+
+        // Load real stock from Google Sheets (via doGet?action=getStock) and merge it
+        // into the local product/specialProduct objects before rendering.
+        async function loadStock() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getStock`);
+                const data = await res.json();
+
+                if (data.status === 'ok' && Array.isArray(data.stock)) {
+                    const allProducts = [...products, specialProduct];
+                    data.stock.forEach(s => {
+                        const p = allProducts.find(p => p.id === s.id);
+                        if (p) p.stock = s.disponible;
+                    });
+                }
+            } catch (err) {
+                console.error('No se pudo obtener el stock real, se usan valores por defecto:', err);
+            }
+        }
+
         // Render products
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
@@ -1165,7 +1186,7 @@
                 items: Object.values(cart),
                 total
             })
-            .then(() => {
+            .then(async () => {
                 console.log('Sheets updated, now opening WhatsApp');
                 // Open WhatsApp after Sheets is updated
                 window.open(url, '_blank');
@@ -1175,6 +1196,10 @@
                 updateCartBar();
                 closeCart();
                 showToast('¡Pedido enviado! 📱', 'success');
+
+                // Refresh the displayed stock so it reflects the new totals
+                await loadStock();
+                renderProducts();
             })
             .catch(err => {
                 console.error('Failed to update Sheets:', err);
@@ -1227,7 +1252,8 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadStock();
             renderProducts();
         });
     </script>
