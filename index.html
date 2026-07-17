@@ -839,7 +839,7 @@
         // Cart state
         let cart = {};
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGXND_bDpUajwtuKwVIsqSpbtcTmvxmzuMzQC8UXCjY4CalmyAriI0441ug2lWyApP/exec';
 
         // Load real stock from Google Sheets (via doGet?action=getStock) and merge it
         // into the local product/specialProduct objects before rendering.
@@ -1217,8 +1217,6 @@
         function sendToGoogleSheets(data) {
             console.log('Sending to Google Sheets:', data);
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
-
             // Apps Script solo llena e.parameter si el body viene como
             // application/x-www-form-urlencoded (URLSearchParams) o multipart/form-data.
             // Con JSON.stringify + Content-Type: application/json, e.parameter llega vacío
@@ -1230,7 +1228,7 @@
             params.append('total', data.total);
             params.append('items', JSON.stringify(data.items));
 
-            return fetch(scriptURL, {
+            return fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', // Apps Script no devuelve headers CORS; con no-cors la promesa resuelve igual
                 body: params
