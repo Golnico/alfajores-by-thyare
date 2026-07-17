@@ -1581,20 +1581,54 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Buscando...';
             
-            const url = `${SCRIPT_URL}?action=getOrders&phone=${encodeURIComponent(normalizedPhone)}`;
-            console.log('Fetch URL:', url);
+            // MÉTODO 1: Intentar con POST (más confiable con Apps Script)
+            const postParams = new URLSearchParams();
+            postParams.append('action', 'getOrders');
+            postParams.append('phone', normalizedPhone);
+            
+            console.log('POST body:', postParams.toString());
             
             try {
-                const res = await fetch(url);
-                console.log('Response status:', res.status);
-                const data = await res.json();
-                console.log('Response data:', data);
+                // Primero intentamos POST
+                const postRes = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: postParams
+                });
+                console.log('POST response:', postRes);
+                
+                // Como no-cors no nos deja leer la respuesta, hacemos GET como fallback
+                // pero con la URL completa visible para debug
+                
+                const getUrl = SCRIPT_URL + '?action=getOrders&phone=' + encodeURIComponent(normalizedPhone);
+                console.log('GET URL:', getUrl);
+                
+                const getRes = await fetch(getUrl);
+                console.log('GET status:', getRes.status);
+                console.log('GET headers:', [...getRes.headers.entries()]);
+                
+                const text = await getRes.text();
+                console.log('GET raw response (first 200 chars):', text.substring(0, 200));
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log('Parsed data:', data);
+                } catch(e) {
+                    console.error('JSON parse error:', e);
+                    console.log('Full raw response:', text);
+                    data = {status: 'error', message: 'Invalid JSON response'};
+                }
                 
                 if (data.status === 'ok' && data.orders && data.orders.length > 0) {
                     renderOrders(data.orders);
                     document.getElementById('lookupResults').style.display = 'block';
                     document.getElementById('lookupEmpty').style.display = 'none';
                 } else {
+                    console.log('No orders found or error:', data);
                     document.getElementById('lookupResults').style.display = 'none';
                     document.getElementById('lookupEmpty').style.display = 'block';
                 }
