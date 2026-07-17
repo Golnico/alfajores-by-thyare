@@ -724,7 +724,6 @@
         }
     </style>
 <base target="_blank">
-<base target="_blank">
 </head>
 <body>
     <div class="header">
@@ -1189,18 +1188,28 @@
             });
         }
 
-        // Send to Google Sheets (placeholder - will be configured)
+        // Send to Google Sheets
         function sendToGoogleSheets(data) {
             console.log('Sending to Google Sheets:', data);
 
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
 
-            // Uncomment when configured:
-            // fetch(scriptURL, {
-            //     method: 'POST',
-            //     body: JSON.stringify(data),
-            //     headers: { 'Content-Type': 'application/json' }
-            // }).catch(err => console.log('Sheet update failed:', err));
+            // Apps Script solo llena e.parameter si el body viene como
+            // application/x-www-form-urlencoded (URLSearchParams) o multipart/form-data.
+            // Con JSON.stringify + Content-Type: application/json, e.parameter llega vacío
+            // y por eso nunca se actualizaba el Stock.
+            const params = new URLSearchParams();
+            params.append('name', data.name);
+            params.append('phone', data.phone);
+            params.append('notes', data.notes || '');
+            params.append('total', data.total);
+            params.append('items', JSON.stringify(data.items));
+
+            return fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Apps Script no devuelve headers CORS; con no-cors la promesa resuelve igual
+                body: params
+            });
         }
 
         // Show toast
