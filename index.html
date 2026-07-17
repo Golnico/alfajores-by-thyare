@@ -1250,9 +1250,14 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', async function() {
-            await loadStock();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar la web de inmediato con los valores por defecto...
             renderProducts();
+
+            // ...y en paralelo, pedir el stock real y refrescar en cuanto llegue
+            loadStock().then(() => {
+                renderProducts();
+            });
         });
     </script>
 </body>
