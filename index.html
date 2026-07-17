@@ -1357,11 +1357,17 @@
             const name = document.getElementById('customerName').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
             const notes = document.getElementById('customerNotes').value.trim();
+            const btn = document.getElementById('whatsappBtn');
 
             if (!name || !phone) {
                 showToast('Por favor completá nombre y teléfono', 'error');
                 return;
             }
+
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando pedido...';
+            btn.style.opacity = '0.8';
 
             // Build WhatsApp message with better formatting
             const now = new Date();
@@ -1449,7 +1455,7 @@
                 cart = {};
                 updateCartBar();
                 closeCart();
-                showToast('¡Pedido enviado! 📱', 'success');
+                showToast('¡Pedido enviado!', 'success');
 
                 // Refresh the displayed stock so it reflects the new totals
                 await loadStock();
@@ -1463,7 +1469,7 @@
                 cart = {};
                 updateCartBar();
                 closeCart();
-                showToast('¡Pedido enviado! 📱', 'success');
+                showToast('¡Pedido enviado!', 'success');
             });
         }
 
