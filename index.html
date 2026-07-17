@@ -817,8 +817,8 @@
     </div>
 
     <script>
-        // Product data
-        const products = [
+        // Product data (will be updated from Google Sheets)
+        let products = [
             { id: 'nuez', name: 'Nuez', emoji: '🌰', price: 1000, stock: 15 },
             { id: 'mani', name: 'Maní', emoji: '🥜', price: 1000, stock: 12 },
             { id: 'frambuesa', name: 'Frambuesa', emoji: '🍓', price: 1000, stock: 8 },
@@ -827,7 +827,7 @@
             { id: 'nutella', name: 'Nutella', emoji: '🍫', price: 1000, stock: 18 },
         ];
 
-        const specialProduct = {
+        let specialProduct = {
             id: 'tradicional',
             name: 'Tradicional',
             emoji: '🍪',
@@ -836,6 +836,35 @@
             promo: '2 x $1,000',
             isSpecial: true
         };
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxPY8TnVXzOH3jBUBDDUyTp-_TgRjxtqMe8vieNPXkFCbFY79bDkLaob-5kw85oapyE/exec';
+
+        // Load stock from Google Sheets on page load
+        async function loadStockFromSheets() {
+            try {
+                const response = await fetch(scriptURL + '?action=getStock');
+                const stockData = await response.json();
+
+                if (stockData.status === 'ok' && stockData.stock) {
+                    // Update products stock
+                    stockData.stock.forEach(stockItem => {
+                        const product = products.find(p => p.id === stockItem.id);
+                        if (product) {
+                            product.stock = stockItem.disponible;
+                        }
+                        if (specialProduct.id === stockItem.id) {
+                            specialProduct.stock = stockItem.disponible;
+                        }
+                    });
+
+                    console.log('✅ Stock loaded from Google Sheets');
+                    renderProducts();
+                }
+            } catch (err) {
+                console.log('⚠️ Could not load stock from Sheets, using defaults:', err);
+                // Keep default stock values
+            }
+        }
 
         // Cart state
         let cart = {};
@@ -1176,31 +1205,18 @@
             showToast('¡Pedido enviado! 📱', 'success');
         }
 
-        // Send to Google Sheets
+        // Send to Google Sheets (placeholder - will be configured)
         function sendToGoogleSheets(data) {
             console.log('Sending to Google Sheets:', data);
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxPY8TnVXzOH3jBUBDDUyTp-_TgRjxtqMe8vieNPXkFCbFY79bDkLaob-5kw85oapyE/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyawolQFSnY5mDj7oDnSMuKmXFzSd4z83FdYGyV8KJYNfl8gLzydLD4bgGvbKFYNwPQ/exec';
 
-            // Use URL-encoded form data (works better with Google Apps Script)
-            const formData = new URLSearchParams();
-            formData.append('name', data.name || '');
-            formData.append('phone', data.phone || '');
-            formData.append('notes', data.notes || '');
-            formData.append('total', data.total || 0);
-            formData.append('items', JSON.stringify(data.items || []));
-
-            fetch(scriptURL, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(result => {
-                console.log('✅ Google Sheets response:', result);
-            })
-            .catch(err => {
-                console.error('❌ Error:', err);
-            });
+            // Uncomment when configured:
+            // fetch(scriptURL, {
+            //     method: 'POST',
+            //     body: JSON.stringify(data),
+            //     headers: { 'Content-Type': 'application/json' }
+            // }).catch(err => console.log('Sheet update failed:', err));
         }
 
         // Show toast
@@ -1219,7 +1235,9 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            renderProducts();
+            loadStockFromSheets().then(() => {
+                renderProducts();
+            });
         });
     </script>
 </body>
