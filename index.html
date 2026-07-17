@@ -87,18 +87,25 @@
         }
 
         .splash-stamp {
-            width: 156px;
-            height: 156px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             border: 3px dashed var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
             background: var(--card);
             transform: rotate(-6deg);
             box-shadow: var(--shadow-card);
             margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .splash-stamp img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: sepia(0.12) saturate(1.15) contrast(1.02);
         }
 
         .splash h1 {
@@ -295,8 +302,8 @@
         }
 
         .product-image {
-            width: 84px;
-            height: 84px;
+            width: 96px;
+            height: 96px;
             flex-shrink: 0;
             border-radius: 50%;
             border: 2px dashed var(--primary);
@@ -513,6 +520,7 @@
             margin-bottom: 6px;
             letter-spacing: 1.5px;
             transform: rotate(-4deg);
+            align-self: flex-start;
         }
 
         /* Cart Bar (Fixed Bottom) */
@@ -943,7 +951,7 @@
 <body>
     <!-- Splash / Vidriera -->
     <div class="splash" id="splash">
-        <div class="splash-stamp">🍪</div>
+        <div class="splash-stamp"><img src="images/tradicional.png" alt="Alfajores by Thyare"></div>
         <h1>Alfajores</h1>
         <div class="subtitle">by Thyare</div>
         <p class="tagline">Alfajores artesanales, hechos en casa. Armá tu pedido y coordinamos todo por WhatsApp.</p>
@@ -1047,12 +1055,12 @@
     <script>
         // Product data
         const products = [
-            { id: 'nuez', name: 'Nuez', emoji: '🌰', price: 1000, stock: 15 },
-            { id: 'mani', name: 'Maní', emoji: '🥜', price: 1000, stock: 12 },
-            { id: 'frambuesa', name: 'Frambuesa', emoji: '🍓', price: 1000, stock: 8 },
-            { id: 'bonobon', name: 'Bonobon', emoji: '🍫', price: 1000, stock: 20 },
-            { id: 'oreo', name: 'Oreo', emoji: '🍪', price: 1000, stock: 5 },
-            { id: 'nutella', name: 'Nutella', emoji: '🍫', price: 1000, stock: 18 },
+            { id: 'nuez', name: 'Nuez', emoji: '🌰', image: 'images/tradicional.png', price: 1000, stock: 15 },
+            { id: 'mani', name: 'Maní', emoji: '🥜', image: 'images/tradicional.png', price: 1000, stock: 12 },
+            { id: 'frambuesa', name: 'Frambuesa', emoji: '🍓', image: 'images/tradicional.png', price: 1000, stock: 8 },
+            { id: 'bonobon', name: 'Bonobon', emoji: '🍫', image: 'images/tradicional.png', price: 1000, stock: 20 },
+            { id: 'oreo', name: 'Oreo', emoji: '🍪', image: 'images/tradicional.png', price: 1000, stock: 5 },
+            { id: 'nutella', name: 'Nutella', emoji: '🍫', image: 'images/tradicional.png', price: 1000, stock: 18 },
         ];
 
         const specialProduct = {
