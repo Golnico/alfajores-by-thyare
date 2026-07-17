@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alfajores de Thyare</title>
+    <title>Alfajores by Thyare</title>
 
     <!-- Meta tags para WhatsApp -->
-    <meta property="og:title" content="Alfajores de Thyare">
+    <meta property="og:title" content="Alfajores by Thyare">
     <meta property="og:description" content="¡Hacé tu pedido de alfajores artesanales!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600">
     <meta property="og:type" content="website">
@@ -954,7 +954,7 @@
     <div class="splash" id="splash">
         <div class="splash-stamp"><img src="images/tradicional.png" alt="Alfajores by Thyare"></div>
         <h1>Alfajores</h1>
-        <div class="subtitle">de Thyare</div>
+        <div class="subtitle">by Thyare</div>
         <p class="tagline">Alfajores artesanales, hechos en casa. Armá tu pedido y coordinamos todo por WhatsApp.</p>
         <div class="splash-status" id="splashStatus">
             Preparando el mostrador<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
@@ -965,7 +965,7 @@
     <div id="app">
     <div class="header">
         <h1>Alfajores</h1>
-        <div class="subtitle">de Thyare</div>
+        <div class="subtitle">by Thyare</div>
     </div>
 
     <div class="info-bar">
@@ -1363,13 +1363,13 @@
                 return;
             }
 
-            // Build WhatsApp message - clean text, no emojis
+            // Build WhatsApp message with better formatting
             const now = new Date();
             const fecha = now.toLocaleDateString('es-AR');
             const hora = now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
             let message = '========================' + '\n';
-            message += '  ALFAJORES DE THYARE' + '\n';
+            message += '  ALFAJORES BY THYARE' + '\n';
             message += '========================' + '\n\n';
 
             message += '*NUEVO PEDIDO*' + '\n';
@@ -1407,35 +1407,38 @@
             message += '¿Confirmas el pedido?' + '\n';
             message += 'Responde para coordinar la entrega.';
 
-                        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            // IMPORTANT: Replace with your friend's WhatsApp number
+            // Format: 5491112345678 (country code + area code + number, no +, no spaces)
+            const whatsappNumber = '56998684903';
+
+            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
             // Send to Google Sheets FIRST, then open WhatsApp
             // (Some browsers block fetch after window.open)
+            // Show loading state
+            const btn = document.getElementById('whatsappBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+            btn.style.opacity = '0.8';
+
+            // Enviar a Google Sheets primero, y en su respuesta abrir WhatsApp
             sendToGoogleSheets({
                 name, phone, notes,
                 items: Object.values(cart),
                 total
-            })
-            .then(async () => {
-                console.log('Sheets updated, now opening WhatsApp');
-                // Open WhatsApp after Sheets is updated
+            }).then(() => {
+                // Abre WhatsApp en una pestaña nueva una vez guardado en Sheets
                 window.open(url, '_blank');
-
+            }).catch((error) => {
+                console.error("Error al guardar en Sheets, abriendo WhatsApp de todas formas...", error);
+                // Si Sheets falla, igual abre WhatsApp para no perder la venta
+                window.open(url, '_blank');
+            }).finally(() => {
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp';
+                btn.style.opacity = '1';
                 // Clear cart
-                cart = {};
-                updateCartBar();
-                closeCart();
-                showToast('¡Pedido enviado!', 'success');
-
-                // Refresh the displayed stock so it reflects the new totals
-                await loadStock();
-                renderProducts();
-            })
-            .catch(err => {
-                console.error('Failed to update Sheets:', err);
-                // Still open WhatsApp even if Sheets fails
-                window.open(url, '_blank');
-
                 cart = {};
                 updateCartBar();
                 closeCart();
