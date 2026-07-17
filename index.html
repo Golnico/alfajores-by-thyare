@@ -947,6 +947,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- Splash / Vidriera -->
@@ -1368,38 +1369,24 @@
             const fecha = now.toLocaleDateString('es-AR');
             const hora = now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
-            let message = `━━━━━━━━━━━━━━━━━━━━━
-`;
-            message += `🍪  *ALFAJORES BY THYARE*
-`;
-            message += `━━━━━━━━━━━━━━━━━━━━━
+            let message = '━━━━━━━━━━━━━━━━━━━━━\n';
+            message += '🍪  *ALFAJORES BY THYARE*\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━\n\n';
 
-`;
+            message += '📋 *NUEVO PEDIDO*\n';
+            message += '🗓️ ' + fecha + '  ⏰ ' + hora + '\n\n';
 
-            message += `📋 *NUEVO PEDIDO*
-`;
-            message += `🗓️ ${fecha}  ⏰ ${hora}
+            message += '👤 *Cliente:* ' + name + '\n';
+            message += '📱 *Teléfono:* ' + phone + '\n';
+            if (notes) message += '📝 *Notas:* ' + notes + '\n';
+            message += '\n';
 
-`;
-
-            message += `👤 *Cliente:* ${name}
-`;
-            message += `📱 *Teléfono:* ${phone}
-`;
-            if (notes) message += `📝 *Notas:* ${notes}
-`;
-            message += `
-`;
-
-            message += `🛒 *TU PEDIDO:*
-`;
-            message += `─────────────────
-`;
+            message += '🛒 *TU PEDIDO:*\n';
+            message += '─────────────────\n';
 
             let total = 0;
             Object.values(cart).forEach(item => {
                 let itemTotal = item.price * item.qty;
-                let itemEmoji = item.emoji;
                 let itemLabel = item.name;
 
                 if (item.id === 'tradicional') {
@@ -1407,25 +1394,19 @@
                     const singles = item.qty % 2;
                     itemTotal = (pairs * 1000) + (singles * 1000);
                     if (pairs > 0) {
-                        itemLabel = `${item.name} (Promo 2x$1.000)`;
+                        itemLabel = item.name + ' (Promo 2x$1.000)';
                     }
                 }
                 total += itemTotal;
-                message += `${itemEmoji} ${item.qty}x ${itemLabel}
-`;
-                message += `   $${itemTotal.toLocaleString()}
-`;
+                message += '• ' + item.qty + 'x ' + itemLabel + '\n';
+                message += '   $' + itemTotal.toLocaleString() + '\n';
             });
 
-            message += `─────────────────
-`;
-            message += `💰 *TOTAL: $${total.toLocaleString()}*
+            message += '─────────────────\n';
+            message += '💰 *TOTAL: $' + total.toLocaleString() + '*\n\n';
 
-`;
-
-            message += `✅ ¿Confirmás el pedido?
-`;
-            message += `Responde para coordinar la entrega 📦`;
+            message += '✅ ¿Confirmás el pedido?\n';
+            message += 'Responde para coordinar la entrega 📦';
 
             // IMPORTANT: Replace with your friend's WhatsApp number
             // Format: 5491112345678 (country code + area code + number, no +, no spaces)
